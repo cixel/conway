@@ -1,13 +1,13 @@
+extern crate getopts;
 use getopts::Options;
+
+extern crate rand;
 use rand::Rng;
+
+extern crate ncurses;
 
 use std::env;
 use std::{thread, time};
-
-// https://www.gnu.org/software/screen/manual/html_node/Control-Sequences.html
-const ALT_SCREEN_SET: &str = "\x1B[?1049h";
-const ALT_SCREEN_RESET: &str = "\x1B[?1049l";
-const REPOSITION_CURSOR: &str = "\x1B[H";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -68,23 +68,31 @@ fn main() {
     }
 
     println!("initial state:");
-    print_screen(0, &board, false, width, height);
+    println!("{}", screen(&board, width, height));
 
-    print!("{}", ALT_SCREEN_SET);
+    ncurses::setlocale(ncurses::LcCategory::all, "");
+    ncurses::initscr();
+    ncurses::curs_set(ncurses::CURSOR_VISIBILITY::CURSOR_INVISIBLE);
 
     for i in 0..num_gen {
+        ncurses::erase();
+
         let new = step(board, width, height);
-        print_screen(i, &new, true, width, height);
         board = new;
+        ncurses::addstr(format!("gen {}\n", i).as_str());
+        ncurses::addstr(screen(&board, width, height).as_str());
+
         if i != (num_gen - 1) {
             thread::sleep(time::Duration::from_millis(time));
         }
+
+        ncurses::refresh();
     }
 
-    print!("{}", ALT_SCREEN_RESET);
+    ncurses::endwin();
 
     println!("final state:");
-    print_screen(0, &board, false, width, height);
+    println!("{}", screen(&board, width, height));
 }
 
 fn step(board: Vec<bool>, w: usize, h: usize) -> Vec<bool> {
@@ -152,7 +160,7 @@ fn step(board: Vec<bool>, w: usize, h: usize) -> Vec<bool> {
     new_board
 }
 
-fn print_screen(gen: u64, b: &Vec<bool>, clear: bool, w: usize, h: usize) {
+fn screen(b: &Vec<bool>, w: usize, h: usize) -> String {
     let mut s = String::with_capacity((w * h) + h);
     for y in 0..h {
         for x in 0..w {
@@ -165,12 +173,7 @@ fn print_screen(gen: u64, b: &Vec<bool>, clear: bool, w: usize, h: usize) {
         s.push('\n');
     }
 
-    if clear {
-        print!("{}", REPOSITION_CURSOR);
-        println!("gen {}", gen);
-    }
-    print!("{}", s);
-    println!("---");
+    s
 }
 
 fn idx(x: usize, y: usize, w: usize) -> usize {

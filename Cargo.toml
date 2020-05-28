@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 getopts = "0.2"
 rand = "*"
+ncurses = "5.99.0"
