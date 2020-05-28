@@ -83,13 +83,14 @@ fn step(board: Vec<bool>, w: usize, h: usize) -> Vec<bool> {
     let mut new_board = board.clone();
     let mut nbrs = [false; 8];
     for y in 0..h {
-        let up = y.checked_sub(1).unwrap_or(h.checked_sub(1).unwrap());
+        let up = y.checked_sub(1).unwrap_or(h - 1);
         let down = match y + 1 {
             d if d == h => 0,
             d => d,
         };
         for x in 0..w {
-            let l = x.checked_sub(1).unwrap_or(w.checked_sub(1).unwrap());
+            // let l = x.checked_sub(1).unwrap_or(w.checked_sub(1).unwrap());
+            let l = x.checked_sub(1).unwrap_or(w - 1);
             let r = match x + 1 {
                 r if r == w => 0,
                 r => r,
