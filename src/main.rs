@@ -11,14 +11,22 @@ const REPOSITION_CURSOR: &str = "\x1B[H";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    let program = args[0].clone();
     let mut opts = Options::new();
     opts.optopt("w", "", "width of the board", "WIDTH");
-    opts.optopt("t", "", "time (in ms) between generations", "TIME");
+    opts.optopt("t", "", "time in ms to wait in between generations", "TIME");
     opts.optopt("g", "", "number of generations", "NUM");
+    opts.optflag("h", "help", "print help");
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => m,
         Err(f) => panic!(f.to_string()),
     };
+
+    if matches.opt_present("h") {
+        let u = opts.usage(format!("usage: {} [options]", program).as_str());
+        println!("{}", u);
+        return;
+    }
 
     let num_gen: u64 = match matches.opt_str("g") {
         Some(x) => match x.parse() {
@@ -89,7 +97,6 @@ fn step(board: Vec<bool>, w: usize, h: usize) -> Vec<bool> {
             d => d,
         };
         for x in 0..w {
-            // let l = x.checked_sub(1).unwrap_or(w.checked_sub(1).unwrap());
             let l = x.checked_sub(1).unwrap_or(w - 1);
             let r = match x + 1 {
                 r if r == w => 0,

@@ -1,0 +1,7 @@
+usage: ./target/release/conway [options]
+
+Options:
+    -w WIDTH            width of the board
+    -t TIME             time in ms to wait in between generations
+    -g NUM              number of generations
+    -h, --help          print help
